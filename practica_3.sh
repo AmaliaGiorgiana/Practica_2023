@@ -1,16 +1,29 @@
 ##!/bin/bash
 
-# Configurăm auditd pentru a urmări comenzile executate
-auditctl -D 
-echo "Pas1"
-auditctl -a exit,always -F arch=b64 -S execve -F exe=/usr/bin/*
-echo "Pas2"
-# Citim jurnalul de audit și afișăm informațiile relevante
-while true; do
-	echo "Pas3"
-    ausearch -i -sc execve -ts now | grep -E 'type=EXECVE.*a[01]=' | grep -vE 'a[01]=root|a[01]=audit'| grep -v 'msg=audit' | while read line; do
+
+file_event()
+{
+	local time="$1"
+	local user="$2"
+	local comanda="$3"
+
+	local var=$(grep "^\[$time\] Utilizator: $user, Comanda executată: $comanda" evenimente_comenzi.txt)
+
+	if [[ -n "$var" ]]
+	then
+		return;
+	fi
+		echo "[${time}] Utilizator: $user, Comandă executată: $comanda" >> "evenimente_comenzi.txt"
+}
+
+auditctl -D
+auditctl -a exit,always -F arch=b64 -S execve 
+
+while true
+do
+        ausearch -i -sc execve -ts now | grep -E 'type=EXECVE.*a[01]=' | grep -vE 'a[01]=root|a[01]=audit'  | grep -o -E 'a0=[^ ]+' | grep -o -E '[^=]+$'|while read line; do
         timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-        echo "[${timestamp}] Utilizator: $USER - Comandă executată: $line"
-        echo "Pas4"
+        file_event "$timestamp" "$(whoami)" "$line"
+
     done
 done
