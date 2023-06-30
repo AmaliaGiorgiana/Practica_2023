@@ -1,7 +1,7 @@
 #!/bin/bash
 PS3="Alege o optiune din meniu" 
 monitorizare_pid=()
-select ITEM in "Monitorizare /etc" "Centralizare" "Exit" 
+select ITEM in "Monitorizare" "Centralizare" "Exit" 
 do 
     case $REPLY in 
         1)echo "Monitorizare Activata"
@@ -22,17 +22,13 @@ do
             do
                 kill "$pid"
             done
-           if [ -d "centralizare" ]; then
-           	rm -rf centralizare
-       	   fi
-            mkdir centralizare
-            cp -f /home/amalia/evenimente_fisiere.txt centralizare/
-            cp -f /home/amalia/evenimente_tastatura.txt centralizare/
-            cp -f /home/amalia/evenimente_comenzi.txt centralizare/
-            cp -f /home/amalia/evenimente_procese.txt centralizare/
-            cp -f /home/amalia/activitate_retea.log centralizare/ ;; 
+
+            cp -f /home/amalia/evenimente_fisiere.txt centralizare_fisiere/
+            cp -f /home/amalia/evenimente_tastatura.txt centralizare_fisiere/
+            cp -f /home/amalia/evenimente_comenzi.txt centralizare_fisiere/
+            cp -f /home/amalia/evenimente_procese.txt centralizare_fisiere/
+            cp -f /home/amalia/activitate_retea.txt centralizare_fisiere/ ;; 
         3) exit 0 ;;   
         *) echo "Optiune incorecta" 
     esac
 done 
-
